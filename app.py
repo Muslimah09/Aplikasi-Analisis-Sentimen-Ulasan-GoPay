@@ -95,12 +95,35 @@ st.markdown(
 
 
     /* ==========================================================================
-       BACKGROUND
+       BACKGROUND UTAMA
        ========================================================================== */
 
     .stApp {
 
-        background-color: #f7f8fc;
+        background:
+            linear-gradient(
+                135deg,
+                #F4F7FB 0%,
+                #EAF1F8 50%,
+                #F7F9FC 100%
+            );
+
+        min-height: 100vh;
+
+    }
+
+
+    /* ==========================================================================
+       AREA UTAMA
+       ========================================================================== */
+
+    .main .block-container {
+
+        padding-top: 2.5rem;
+
+        padding-bottom: 2rem;
+
+        max-width: 1200px;
 
     }
 
@@ -111,11 +134,12 @@ st.markdown(
 
     section[data-testid="stSidebar"] {
 
-        background: linear-gradient(
-            180deg,
-            #111827 0%,
-            #1f2937 100%
-        );
+        background:
+            linear-gradient(
+                180deg,
+                #111827 0%,
+                #1F2937 100%
+            );
 
     }
 
@@ -141,6 +165,8 @@ st.markdown(
 
         min-height: 42px;
 
+        transition: 0.2s;
+
     }
 
 
@@ -165,6 +191,8 @@ st.markdown(
 
         font-weight: 600;
 
+        transition: 0.2s;
+
     }
 
 
@@ -179,29 +207,58 @@ st.markdown(
 
         font-family: 'Poppins', sans-serif !important;
 
-    }
-
-
-    /* ==========================================================================
-       CONTAINER / CARD
-       ========================================================================== */
-
-    div[data-testid="stVerticalBlockBorderWrapper"] {
-
-        border-radius: 16px;
-
-        border: 1px solid #e1e5eb;
-
         background-color: white;
 
     }
 
 
     /* ==========================================================================
-       CAPTION UMUM
+       SELECTBOX
+       ========================================================================== */
+
+    div[data-baseweb="select"] > div {
+
+        border-radius: 10px;
+
+    }
+
+
+    /* ==========================================================================
+       CARD
+       ========================================================================== */
+
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+
+        border-radius: 16px;
+
+        border: 1px solid #DDE3EA;
+
+        background-color: rgba(255,255,255,0.96);
+
+        box-shadow:
+            0 2px 8px rgba(31,41,55,0.04);
+
+    }
+
+
+    /* ==========================================================================
+       CAPTION
        ========================================================================== */
 
     .stCaption {
+
+        font-family: 'Poppins', sans-serif !important;
+
+    }
+
+
+    /* ==========================================================================
+       JUDUL
+       ========================================================================== */
+
+    h1,
+    h2,
+    h3 {
 
         font-family: 'Poppins', sans-serif !important;
 
@@ -356,7 +413,7 @@ with st.sidebar:
 
 
     # --------------------------------------------------------------------------
-    # USER
+    # INFORMASI USER
     # --------------------------------------------------------------------------
 
     st.write(
@@ -683,6 +740,7 @@ def preprocessing(teks):
             kata
         )
 
+
         kata_normalisasi.extend(
             kata_baru.split()
         )
@@ -859,7 +917,7 @@ def dashboard():
 
 
     st.write(
-        "Selamat datang di aplikasi Sentimen Review Analyzer."
+        "Selamat datang di aplikasi Analisis Sentimen Ulasan GoPay."
     )
 
 
@@ -869,10 +927,6 @@ def dashboard():
     # ==========================================================================
     # KARTU INFORMASI
     # ==========================================================================
-
-    # Semua kartu menggunakan lebar proporsional.
-    # Kolom Oversampling dibuat cukup lebar agar label tidak terpotong.
-    # Semua kartu memiliki tinggi yang sama.
 
     col1, col2, col3, col4 = st.columns(
         [1.05, 1.40, 1.45, 0.95],
@@ -901,13 +955,7 @@ def dashboard():
                 ">
                     Metode
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
 
-
-            st.markdown(
-                """
                 <div style="
                     font-size:21px;
                     font-weight:600;
@@ -943,13 +991,7 @@ def dashboard():
                 ">
                     Oversampling
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
 
-
-            st.markdown(
-                """
                 <div style="
                     font-size:21px;
                     font-weight:600;
@@ -985,13 +1027,7 @@ def dashboard():
                 ">
                     Classifier
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
 
-
-            st.markdown(
-                """
                 <div style="
                     font-size:20px;
                     font-weight:600;
@@ -1027,13 +1063,7 @@ def dashboard():
                 ">
                     Tahun
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
 
-
-            st.markdown(
-                """
                 <div style="
                     font-size:21px;
                     font-weight:600;
@@ -1116,6 +1146,10 @@ def analisis_satu_ulasan():
     st.divider()
 
 
+    # --------------------------------------------------------------------------
+    # INPUT ULASAN
+    # --------------------------------------------------------------------------
+
     ulasan = st.text_area(
 
         "Masukkan ulasan",
@@ -1134,6 +1168,10 @@ def analisis_satu_ulasan():
 
     st.write("")
 
+
+    # --------------------------------------------------------------------------
+    # TOMBOL ANALISIS
+    # --------------------------------------------------------------------------
 
     if st.button(
         "Analisis Sentimen",
@@ -1170,6 +1208,10 @@ def analisis_satu_ulasan():
             st.write("")
 
 
+            # ------------------------------------------------------------------
+            # HASIL SENTIMEN
+            # ------------------------------------------------------------------
+
             if sentimen == "Positif":
 
                 st.success(
@@ -1185,6 +1227,10 @@ def analisis_satu_ulasan():
 
             st.write("")
 
+
+            # ------------------------------------------------------------------
+            # HASIL DAN CONFIDENCE
+            # ------------------------------------------------------------------
 
             col1, col2 = st.columns(2)
 
@@ -1213,6 +1259,10 @@ def analisis_satu_ulasan():
 
             st.write("")
 
+
+            # ------------------------------------------------------------------
+            # PREPROCESSING
+            # ------------------------------------------------------------------
 
             with st.expander(
                 "Lihat Hasil Preprocessing"
@@ -1439,7 +1489,7 @@ def tentang_aplikasi():
 
 
     st.write(
-        "Informasi mengenai aplikasi Sentimen Review Analyzer."
+        "Informasi mengenai aplikasi analisis sentimen."
     )
 
 
@@ -1458,7 +1508,7 @@ def tentang_aplikasi():
         st.write(
             "Aplikasi ini digunakan untuk menganalisis "
             "sentimen ulasan pengguna GoPay menjadi "
-            "sentimen positif atau negatif dan confidence."
+            "sentimen positif atau negatif."
         )
 
 
