@@ -18,9 +18,10 @@ from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 # ======================================================================================
 
 st.set_page_config(
-    page_title="Analisis Sentimen GoPay",
+    page_title="Sentimen Review Analyzer",
     page_icon=None,
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 
@@ -28,95 +29,458 @@ st.set_page_config(
 # 2. SESSION STATE
 # ======================================================================================
 
-if "mulai" not in st.session_state:
-    st.session_state.mulai = False
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if "username" not in st.session_state:
+    st.session_state.username = ""
+
+if "role" not in st.session_state:
+    st.session_state.role = ""
+
+if "halaman" not in st.session_state:
+    st.session_state.halaman = "Login"
 
 
 # ======================================================================================
-# 3. HALAMAN SELAMAT DATANG
+# 3. DATA USER
 # ======================================================================================
 
-if not st.session_state.mulai:
+if "users" not in st.session_state:
+
+    st.session_state.users = {
+
+        "admin": {
+            "password": "admin123",
+            "role": "Administrator"
+        },
+
+        "user": {
+            "password": "user123",
+            "role": "User"
+        }
+
+    }
+
+
+# ======================================================================================
+# 4. CSS / TAMPILAN
+# ======================================================================================
+
+st.markdown(
+    """
+    <style>
+
+    @import url(
+        'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap'
+    );
+
+
+    /* ==========================================================================
+       FONT UTAMA
+       ========================================================================== */
+
+    html,
+    body,
+    [class*="css"],
+    .stApp,
+    button,
+    input,
+    textarea,
+    select {
+
+        font-family: 'Poppins', sans-serif !important;
+
+    }
+
+
+    /* ==========================================================================
+       BACKGROUND
+       ========================================================================== */
+
+    .stApp {
+
+        background-color: #f7f8fc;
+
+    }
+
+
+    /* ==========================================================================
+       SIDEBAR
+       ========================================================================== */
+
+    section[data-testid="stSidebar"] {
+
+        background: linear-gradient(
+            180deg,
+            #111827 0%,
+            #1f2937 100%
+        );
+
+    }
+
+
+    section[data-testid="stSidebar"] * {
+
+        color: white !important;
+
+    }
+
+
+    section[data-testid="stSidebar"] .stButton button {
+
+        background-color: transparent;
+
+        color: white !important;
+
+        border: 1px solid rgba(255,255,255,0.16);
+
+        border-radius: 10px;
+
+        font-weight: 500;
+
+        min-height: 42px;
+
+    }
+
+
+    section[data-testid="stSidebar"] .stButton button:hover {
+
+        background-color: rgba(255,255,255,0.10);
+
+        border-color: rgba(255,255,255,0.30);
+
+    }
+
+
+    /* ==========================================================================
+       BUTTON
+       ========================================================================== */
+
+    .stButton button {
+
+        border-radius: 10px;
+
+        font-family: 'Poppins', sans-serif !important;
+
+        font-weight: 600;
+
+    }
+
+
+    /* ==========================================================================
+       INPUT
+       ========================================================================== */
+
+    .stTextInput input,
+    .stTextArea textarea {
+
+        border-radius: 10px;
+
+        font-family: 'Poppins', sans-serif !important;
+
+    }
+
+
+    /* ==========================================================================
+       CONTAINER / CARD
+       ========================================================================== */
+
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+
+        border-radius: 16px;
+
+        border: 1px solid #e1e5eb;
+
+        background-color: white;
+
+    }
+
+
+    /* ==========================================================================
+       CAPTION UMUM
+       ========================================================================== */
+
+    .stCaption {
+
+        font-family: 'Poppins', sans-serif !important;
+
+    }
+
+
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+# ======================================================================================
+# 5. HALAMAN LOGIN + SELAMAT DATANG
+# ======================================================================================
+
+def halaman_login():
 
     st.write("")
     st.write("")
     st.write("")
-    st.write("")
 
-    st.title("Selamat Datang")
 
-    st.subheader(
-        "Aplikasi Analisis Sentimen Ulasan GoPay"
+    kolom_kiri, kolom_tengah, kolom_kanan = st.columns(
+        [1, 2, 1]
     )
 
-    st.write(
-        "Aplikasi ini digunakan untuk menganalisis sentimen "
-        "ulasan pengguna GoPay menjadi sentimen positif atau negatif."
-    )
 
-    st.write("")
+    with kolom_tengah:
 
-    st.info(
-        "Sistem menggunakan metode TF-IDF, SMOTE, dan "
-        "Logistic Regression untuk melakukan klasifikasi sentimen."
-    )
+        # ----------------------------------------------------------------------
+        # SELAMAT DATANG
+        # ----------------------------------------------------------------------
 
-    st.write("")
-    st.write("")
+        st.title(
+            "Selamat Datang di Aplikasi"
+        )
 
-    st.markdown(
-        "### Silakan klik tombol di bawah untuk mulai melakukan analisis."
-    )
 
-    st.write("")
+        st.subheader(
+            "Sentimen Review Analyzer"
+        )
 
-    col1, col2, col3 = st.columns([1, 2, 1])
 
-    with col2:
+        st.write(
+            "Silakan login untuk mengakses aplikasi "
+            "analisis sentimen GoPay."
+        )
+
+
+        st.write("")
+
+
+        # ----------------------------------------------------------------------
+        # USERNAME
+        # ----------------------------------------------------------------------
+
+        username = st.text_input(
+            "Username",
+            placeholder="Masukkan username",
+            key="login_username"
+        )
+
+
+        # ----------------------------------------------------------------------
+        # PASSWORD
+        # ----------------------------------------------------------------------
+
+        password = st.text_input(
+            "Password",
+            type="password",
+            placeholder="Masukkan password",
+            key="login_password"
+        )
+
+
+        st.write("")
+
+
+        # ----------------------------------------------------------------------
+        # LOGIN
+        # ----------------------------------------------------------------------
 
         if st.button(
-            "Mulai Analisis",
+            "Login",
             type="primary",
-            use_container_width=True
+            use_container_width=True,
+            key="login_button"
         ):
 
-            st.session_state.mulai = True
+            if (
+                username in st.session_state.users
+                and
+                st.session_state.users[username]["password"] == password
+            ):
 
-            st.rerun()
+                st.session_state.logged_in = True
+
+                st.session_state.username = username
+
+                st.session_state.role = (
+                    st.session_state.users[username]["role"]
+                )
+
+                st.session_state.halaman = "Dashboard"
+
+                st.rerun()
+
+            else:
+
+                st.error(
+                    "Username atau password salah."
+                )
+
+
+        st.write("")
+
+
+        st.caption(
+            "Analisis Sentimen Ulasan GoPay • 2026"
+        )
+
+
+# ======================================================================================
+# 6. CEK LOGIN
+# ======================================================================================
+
+if not st.session_state.logged_in:
+
+    halaman_login()
 
     st.stop()
 
 
 # ======================================================================================
-# 4. TOMBOL KEMBALI KE HALAMAN UTAMA
+# 7. SIDEBAR
 # ======================================================================================
 
-col1, col2, col3 = st.columns([1, 1, 5])
+with st.sidebar:
 
-with col1:
+    st.title(
+        "Sentimen Review"
+    )
+
+
+    st.caption(
+        "Analyzer GoPay"
+    )
+
+
+    st.write("")
+
+
+    # --------------------------------------------------------------------------
+    # USER
+    # --------------------------------------------------------------------------
+
+    st.write(
+        f"**{st.session_state.username}**"
+    )
+
+
+    st.caption(
+        st.session_state.role
+    )
+
+
+    st.divider()
+
+
+    # --------------------------------------------------------------------------
+    # DASHBOARD
+    # --------------------------------------------------------------------------
 
     if st.button(
-        "Halaman Utama",
-        use_container_width=True
+        "Dashboard",
+        use_container_width=True,
+        key="sidebar_dashboard"
     ):
 
-        st.session_state.mulai = False
+        st.session_state.halaman = "Dashboard"
+
+        st.rerun()
+
+
+    # --------------------------------------------------------------------------
+    # ANALISIS ULASAN
+    # --------------------------------------------------------------------------
+
+    if st.button(
+        "Analisis Ulasan",
+        use_container_width=True,
+        key="sidebar_analisis"
+    ):
+
+        st.session_state.halaman = "Analisis Ulasan"
+
+        st.rerun()
+
+
+    # --------------------------------------------------------------------------
+    # MANAGE USER
+    # KHUSUS ADMINISTRATOR
+    # --------------------------------------------------------------------------
+
+    if st.session_state.role == "Administrator":
+
+        if st.button(
+            "Manage User",
+            use_container_width=True,
+            key="sidebar_manage_user"
+        ):
+
+            st.session_state.halaman = "Manage User"
+
+            st.rerun()
+
+
+    # --------------------------------------------------------------------------
+    # TENTANG APLIKASI
+    # --------------------------------------------------------------------------
+
+    if st.button(
+        "Tentang Aplikasi",
+        use_container_width=True,
+        key="sidebar_tentang"
+    ):
+
+        st.session_state.halaman = "Tentang Aplikasi"
+
+        st.rerun()
+
+
+    st.divider()
+
+
+    # --------------------------------------------------------------------------
+    # LOGOUT
+    # --------------------------------------------------------------------------
+
+    if st.button(
+        "Logout",
+        use_container_width=True,
+        key="sidebar_logout"
+    ):
+
+        st.session_state.logged_in = False
+
+        st.session_state.username = ""
+
+        st.session_state.role = ""
+
+        st.session_state.halaman = "Login"
 
         st.rerun()
 
 
 # ======================================================================================
-# 5. LOAD MODEL DAN VECTORIZER
+# 8. LOAD MODEL DAN VECTORIZER
 # ======================================================================================
 
 @st.cache_resource
 def load_model():
 
-    with open("model.pkl", "rb") as file:
+    with open(
+        "model.pkl",
+        "rb"
+    ) as file:
+
         model = pickle.load(file)
 
-    with open("vectorizer.pkl", "rb") as file:
+
+    with open(
+        "vectorizer.pkl",
+        "rb"
+    ) as file:
+
         vectorizer = pickle.load(file)
+
 
     return model, vectorizer
 
@@ -124,6 +488,7 @@ def load_model():
 try:
 
     model, vectorizer = load_model()
+
 
 except Exception as e:
 
@@ -139,7 +504,7 @@ except Exception as e:
 
 
 # ======================================================================================
-# 6. LOAD STEMMER SASTRAWI
+# 9. LOAD STEMMER SASTRAWI
 # ======================================================================================
 
 @st.cache_resource
@@ -154,9 +519,7 @@ stemmer = load_stemmer()
 
 
 # ======================================================================================
-# 7. PREPROCESSING
-# Cleaning → Case Folding → Normalisasi → Tokenizing
-# → Stopword Removal → Stemming
+# 10. PREPROCESSING
 # ======================================================================================
 
 def preprocessing(teks):
@@ -168,42 +531,41 @@ def preprocessing(teks):
     # CLEANING
     # ==========================================================================
 
-    # Menghapus URL
     teks = re.sub(
         r"http\S+|www\S+",
         " ",
         teks
     )
 
-    # Menghapus mention
+
     teks = re.sub(
         r"@\w+",
         " ",
         teks
     )
 
-    # Menghapus tanda # tetapi mempertahankan kata
+
     teks = re.sub(
         r"#(\w+)",
         r"\1",
         teks
     )
 
-    # Menghapus tag HTML
+
     teks = re.sub(
         r"<.*?>",
         " ",
         teks
     )
 
-    # Menghapus angka dan karakter selain huruf
+
     teks = re.sub(
         r"[^a-zA-Z\s]",
         " ",
         teks
     )
 
-    # Menghapus spasi berlebih
+
     teks = re.sub(
         r"\s+",
         " ",
@@ -307,10 +669,12 @@ def preprocessing(teks):
 
         "thx": "terima kasih",
         "thanks": "terima kasih"
+
     }
 
 
     kata_normalisasi = []
+
 
     for kata in teks.split():
 
@@ -337,7 +701,7 @@ def preprocessing(teks):
 
 
     # ==========================================================================
-    # STOPWORD REMOVAL
+    # STOPWORD
     # ==========================================================================
 
     stopword_tambahan = {
@@ -360,11 +724,9 @@ def preprocessing(teks):
         "di",
         "ke",
         "dari"
+
     }
 
-
-    # Kata yang tetap dipertahankan
-    # karena memiliki pengaruh terhadap sentimen
 
     kata_dipertahankan = {
 
@@ -385,10 +747,12 @@ def preprocessing(teks):
         "aman",
         "puas",
         "kecewa"
+
     }
 
 
     hasil_stopword = []
+
 
     for kata in tokens:
 
@@ -397,7 +761,9 @@ def preprocessing(teks):
             or kata in kata_dipertahankan
         ):
 
-            hasil_stopword.append(kata)
+            hasil_stopword.append(
+                kata
+            )
 
 
     teks = " ".join(
@@ -429,50 +795,30 @@ def preprocessing(teks):
 
 
 # ======================================================================================
-# 8. FUNGSI PREDIKSI
+# 11. FUNGSI PREDIKSI
 # ======================================================================================
 
 def prediksi_sentimen(teks):
-
-    # --------------------------------------------------------------------------
-    # PREPROCESSING
-    # --------------------------------------------------------------------------
 
     teks_bersih = preprocessing(
         teks
     )
 
 
-    # --------------------------------------------------------------------------
-    # TF-IDF
-    # --------------------------------------------------------------------------
-
     X = vectorizer.transform(
         [teks_bersih]
     )
 
-
-    # --------------------------------------------------------------------------
-    # PREDIKSI
-    # --------------------------------------------------------------------------
 
     prediksi = model.predict(
         X
     )[0]
 
 
-    # --------------------------------------------------------------------------
-    # PROBABILITAS
-    # --------------------------------------------------------------------------
-
     probabilitas = model.predict_proba(
         X
     )[0]
 
-
-    # --------------------------------------------------------------------------
-    # CONFIDENCE
-    # --------------------------------------------------------------------------
 
     confidence = (
         np.max(
@@ -480,10 +826,6 @@ def prediksi_sentimen(teks):
         ) * 100
     )
 
-
-    # --------------------------------------------------------------------------
-    # LABEL SENTIMEN
-    # --------------------------------------------------------------------------
 
     if prediksi == 1:
 
@@ -502,379 +844,682 @@ def prediksi_sentimen(teks):
 
 
 # ======================================================================================
-# 9. HEADER HALAMAN UTAMA
+# 12. DASHBOARD
 # ======================================================================================
 
-st.title(
-    "Sentimen Review Analyzer"
-)
+def dashboard():
 
-st.subheader(
-    "Aplikasi Analisis Sentimen Ulasan GoPay"
-)
+    # --------------------------------------------------------------------------
+    # JUDUL
+    # --------------------------------------------------------------------------
 
-st.write(
-    "Masukkan ulasan untuk mengetahui hasil klasifikasi "
-    "sentimen secara otomatis."
-)
-
-st.divider()
+    st.title(
+        "Dashboard"
+    )
 
 
-# ======================================================================================
-# 10. ANALISIS SATU ULASAN
-# ======================================================================================
-
-st.header(
-    "Analisis Ulasan"
-)
-
-ulasan = st.text_area(
-    "Masukkan ulasan",
-    placeholder=(
-        "Contoh: Aplikasi lambat dan sulit digunakan untuk transaksi"
-    ),
-    height=150
-)
+    st.write(
+        "Selamat datang di aplikasi Sentimen Review Analyzer."
+    )
 
 
-if st.button(
-    "Analisis Sentimen",
-    type="primary",
-    use_container_width=True
-):
-
-    if not ulasan.strip():
-
-        st.warning(
-            "Silakan masukkan ulasan terlebih dahulu."
-        )
-
-    else:
-
-        (
-            sentimen,
-            confidence,
-            teks_bersih
-        ) = prediksi_sentimen(
-            ulasan
-        )
+    st.write("")
 
 
-        st.divider()
+    # ==========================================================================
+    # KARTU INFORMASI
+    # ==========================================================================
+
+    # Semua kartu menggunakan lebar proporsional.
+    # Kolom Oversampling dibuat cukup lebar agar label tidak terpotong.
+    # Semua kartu memiliki tinggi yang sama.
+
+    col1, col2, col3, col4 = st.columns(
+        [1.05, 1.40, 1.45, 0.95],
+        gap="medium"
+    )
+
+
+    # --------------------------------------------------------------------------
+    # METODE
+    # --------------------------------------------------------------------------
+
+    with col1:
+
+        with st.container(
+            border=True,
+            height=145
+        ):
+
+            st.markdown(
+                """
+                <div style="
+                    font-size:13px;
+                    color:#718096;
+                    white-space:nowrap;
+                    margin-bottom:18px;
+                ">
+                    Metode
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+            st.markdown(
+                """
+                <div style="
+                    font-size:21px;
+                    font-weight:600;
+                    line-height:1.25;
+                    white-space:nowrap;
+                    color:#182033;
+                ">
+                    TF-IDF
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+    # --------------------------------------------------------------------------
+    # OVERSAMPLING
+    # --------------------------------------------------------------------------
+
+    with col2:
+
+        with st.container(
+            border=True,
+            height=145
+        ):
+
+            st.markdown(
+                """
+                <div style="
+                    font-size:13px;
+                    color:#718096;
+                    white-space:nowrap;
+                    margin-bottom:18px;
+                ">
+                    Oversampling
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+            st.markdown(
+                """
+                <div style="
+                    font-size:21px;
+                    font-weight:600;
+                    line-height:1.25;
+                    white-space:nowrap;
+                    color:#182033;
+                ">
+                    SMOTE
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+    # --------------------------------------------------------------------------
+    # CLASSIFIER
+    # --------------------------------------------------------------------------
+
+    with col3:
+
+        with st.container(
+            border=True,
+            height=145
+        ):
+
+            st.markdown(
+                """
+                <div style="
+                    font-size:13px;
+                    color:#718096;
+                    white-space:nowrap;
+                    margin-bottom:12px;
+                ">
+                    Classifier
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+            st.markdown(
+                """
+                <div style="
+                    font-size:20px;
+                    font-weight:600;
+                    line-height:1.35;
+                    color:#182033;
+                ">
+                    Logistic<br>
+                    Regression
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+    # --------------------------------------------------------------------------
+    # TAHUN
+    # --------------------------------------------------------------------------
+
+    with col4:
+
+        with st.container(
+            border=True,
+            height=145
+        ):
+
+            st.markdown(
+                """
+                <div style="
+                    font-size:13px;
+                    color:#718096;
+                    white-space:nowrap;
+                    margin-bottom:18px;
+                ">
+                    Tahun
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+            st.markdown(
+                """
+                <div style="
+                    font-size:21px;
+                    font-weight:600;
+                    line-height:1.25;
+                    white-space:nowrap;
+                    color:#182033;
+                ">
+                    2026
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+    st.write("")
+
+
+    # ==========================================================================
+    # FITUR APLIKASI
+    # ==========================================================================
+
+    st.subheader(
+        "Fitur Aplikasi"
+    )
+
+
+    st.write("")
+
+
+    # --------------------------------------------------------------------------
+    # ANALISIS ULASAN
+    # --------------------------------------------------------------------------
+
+    with st.container(
+        border=True
+    ):
 
         st.subheader(
-            "Hasil Analisis"
+            "Analisis Ulasan"
         )
 
 
-        # ------------------------------------------------------------------
-        # HASIL SENTIMEN
-        # ------------------------------------------------------------------
+        st.write(
+            "Masukkan satu ulasan GoPay untuk mendapatkan "
+            "hasil klasifikasi sentimen dan nilai confidence."
+        )
 
-        if sentimen == "Positif":
 
-            st.success(
-                "Sentimen Positif"
+        st.write("")
+
+
+        if st.button(
+            "Buka Analisis Ulasan",
+            use_container_width=True,
+            key="dashboard_analisis_satu"
+        ):
+
+            st.session_state.halaman = "Analisis Ulasan"
+
+            st.rerun()
+
+
+# ======================================================================================
+# 13. ANALISIS SATU ULASAN
+# ======================================================================================
+
+def analisis_satu_ulasan():
+
+    st.title(
+        "Analisis Ulasan"
+    )
+
+
+    st.write(
+        "Masukkan ulasan pengguna GoPay untuk mengetahui "
+        "hasil klasifikasi sentimen."
+    )
+
+
+    st.divider()
+
+
+    ulasan = st.text_area(
+
+        "Masukkan ulasan",
+
+        placeholder=(
+            "Contoh: Aplikasi GoPay sangat mudah digunakan "
+            "dan transaksi berjalan cepat."
+        ),
+
+        height=150,
+
+        key="input_ulasan"
+
+    )
+
+
+    st.write("")
+
+
+    if st.button(
+        "Analisis Sentimen",
+        type="primary",
+        use_container_width=True,
+        key="button_analisis"
+    ):
+
+        if not ulasan.strip():
+
+            st.warning(
+                "Silakan masukkan ulasan terlebih dahulu."
             )
 
         else:
 
-            st.error(
-                "Sentimen Negatif"
-            )
-
-
-        # ------------------------------------------------------------------
-        # HASIL PREDIKSI DAN CONFIDENCE
-        # ------------------------------------------------------------------
-
-        col1, col2 = st.columns(2)
-
-
-        with col1:
-
-            st.write(
-                "Hasil Prediksi"
-            )
-
-            st.markdown(
-                f"### {sentimen}"
-            )
-
-
-        with col2:
-
-            st.write(
-                "Confidence"
-            )
-
-            st.markdown(
-                f"### {confidence:.2f}%"
-            )
-
-
-        # ------------------------------------------------------------------
-        # HASIL PREPROCESSING
-        # ------------------------------------------------------------------
-
-        with st.expander(
-            "Lihat Hasil Preprocessing"
-        ):
-
-            st.write(
+            (
+                sentimen,
+                confidence,
                 teks_bersih
+            ) = prediksi_sentimen(
+                ulasan
             )
 
 
-# ======================================================================================
-# 11. ANALISIS BANYAK ULASAN
-# ======================================================================================
-
-st.divider()
-
-st.header(
-    "Analisis Banyak Ulasan"
-)
-
-st.write(
-    "Upload file CSV untuk melakukan klasifikasi "
-    "terhadap beberapa ulasan sekaligus."
-)
-
-st.info(
-    "File CSV harus memiliki kolom bernama 'content'."
-)
+            st.divider()
 
 
-uploaded_file = st.file_uploader(
-    "Pilih file CSV",
-    type=["csv"]
-)
+            st.subheader(
+                "Hasil Analisis"
+            )
 
 
-if uploaded_file is not None:
-
-    try:
-
-        df = pd.read_csv(
-            uploaded_file
-        )
-
-    except Exception as e:
-
-        st.error(
-            "File CSV tidak dapat dibaca."
-        )
-
-        st.error(
-            f"Detail error: {e}"
-        )
-
-        st.stop()
+            st.write("")
 
 
-    # ------------------------------------------------------------------
-    # CEK KOLOM
-    # ------------------------------------------------------------------
+            if sentimen == "Positif":
 
-    if "content" not in df.columns:
+                st.success(
+                    "Sentimen Positif"
+                )
 
-        st.error(
-            "Kolom 'content' tidak ditemukan pada file CSV."
-        )
+            else:
 
-        st.write(
-            "Kolom yang tersedia:"
-        )
-
-        st.write(
-            list(df.columns)
-        )
-
-        st.stop()
-
-
-    st.success(
-        f"{len(df)} ulasan berhasil dimuat."
-    )
-
-
-    # ------------------------------------------------------------------
-    # PREVIEW DATA
-    # ------------------------------------------------------------------
-
-    with st.expander(
-        "Lihat Data"
-    ):
-
-        st.dataframe(
-            df.head(10),
-            use_container_width=True
-        )
-
-
-    # ------------------------------------------------------------------
-    # TOMBOL ANALISIS SEMUA
-    # ------------------------------------------------------------------
-
-    if st.button(
-        "Analisis Semua Ulasan",
-        type="primary",
-        use_container_width=True
-    ):
-
-        hasil_preprocessing = []
-
-        hasil_prediksi = []
-
-        hasil_confidence = []
-
-
-        # --------------------------------------------------------------
-        # PROSES SETIAP ULASAN
-        # --------------------------------------------------------------
-
-        with st.spinner(
-            "Sedang menganalisis ulasan..."
-        ):
-
-            for teks in df["content"].fillna(""):
-
-                (
-                    sentimen,
-                    confidence,
-                    teks_bersih
-                ) = prediksi_sentimen(
-                    teks
+                st.error(
+                    "Sentimen Negatif"
                 )
 
 
-                hasil_preprocessing.append(
-                    teks_bersih
+            st.write("")
+
+
+            col1, col2 = st.columns(2)
+
+
+            with col1:
+
+                st.caption(
+                    "Hasil Prediksi"
                 )
 
-                hasil_prediksi.append(
+                st.subheader(
                     sentimen
                 )
 
-                hasil_confidence.append(
-                    round(
-                        confidence,
-                        2
-                    )
+
+            with col2:
+
+                st.caption(
+                    "Confidence"
+                )
+
+                st.subheader(
+                    f"{confidence:.2f}%"
                 )
 
 
-        # --------------------------------------------------------------
-        # TAMBAHKAN HASIL KE DATAFRAME
-        # --------------------------------------------------------------
+            st.write("")
 
-        df["Hasil Preprocessing"] = (
-            hasil_preprocessing
+
+            with st.expander(
+                "Lihat Hasil Preprocessing"
+            ):
+
+                st.write(
+                    teks_bersih
+                )
+
+
+# ======================================================================================
+# 14. MANAGE USER
+# ======================================================================================
+
+def manage_user():
+
+    st.title(
+        "Manage User"
+    )
+
+
+    st.write(
+        "Kelola pengguna yang dapat mengakses aplikasi."
+    )
+
+
+    st.divider()
+
+
+    # ==========================================================================
+    # DAFTAR USER
+    # ==========================================================================
+
+    st.subheader(
+        "Daftar User"
+    )
+
+
+    data_user = []
+
+
+    for username, data in st.session_state.users.items():
+
+        data_user.append(
+            {
+                "Username": username,
+                "Role": data["role"]
+            }
         )
 
-        df["Hasil Prediksi"] = (
-            hasil_prediksi
+
+    df_user = pd.DataFrame(
+        data_user
+    )
+
+
+    st.dataframe(
+        df_user,
+        use_container_width=True,
+        hide_index=True
+    )
+
+
+    st.divider()
+
+
+    # ==========================================================================
+    # TAMBAH USER
+    # ==========================================================================
+
+    st.subheader(
+        "Tambah User"
+    )
+
+
+    col1, col2 = st.columns(2)
+
+
+    with col1:
+
+        username_baru = st.text_input(
+            "Username",
+            key="username_baru"
         )
 
-        df["Confidence (%)"] = (
-            hasil_confidence
+
+    with col2:
+
+        password_baru = st.text_input(
+            "Password",
+            type="password",
+            key="password_baru"
         )
 
 
-        # --------------------------------------------------------------
-        # TAMPILKAN HASIL
-        # --------------------------------------------------------------
+    role_baru = st.selectbox(
+        "Role",
+        [
+            "User",
+            "Administrator"
+        ],
+        key="role_baru"
+    )
 
-        st.subheader(
-            "Hasil Analisis"
+
+    st.write("")
+
+
+    if st.button(
+        "Tambah User",
+        type="primary",
+        use_container_width=True,
+        key="button_tambah_user"
+    ):
+
+        if not username_baru.strip():
+
+            st.warning(
+                "Username harus diisi."
+            )
+
+        elif not password_baru.strip():
+
+            st.warning(
+                "Password harus diisi."
+            )
+
+        elif username_baru in st.session_state.users:
+
+            st.error(
+                "Username sudah digunakan."
+            )
+
+        else:
+
+            st.session_state.users[
+                username_baru
+            ] = {
+
+                "password": password_baru,
+
+                "role": role_baru
+
+            }
+
+
+            st.success(
+                f"User '{username_baru}' berhasil ditambahkan."
+            )
+
+
+            st.rerun()
+
+
+    st.divider()
+
+
+    # ==========================================================================
+    # HAPUS USER
+    # ==========================================================================
+
+    st.subheader(
+        "Hapus User"
+    )
+
+
+    daftar_user = [
+
+        username
+
+        for username in st.session_state.users
+
+        if username != st.session_state.username
+
+    ]
+
+
+    if len(daftar_user) > 0:
+
+        user_hapus = st.selectbox(
+            "Pilih user yang akan dihapus",
+            daftar_user,
+            key="user_hapus"
         )
 
-        st.dataframe(
-            df,
+
+        st.write("")
+
+
+        if st.button(
+            "Hapus User",
             use_container_width=True,
-            height=500
-        )
+            key="button_hapus_user"
+        ):
+
+            del st.session_state.users[
+                user_hapus
+            ]
 
 
-        # --------------------------------------------------------------
-        # RINGKASAN
-        # --------------------------------------------------------------
-
-        jumlah_positif = int(
-            (
-                df["Hasil Prediksi"]
-                == "Positif"
-            ).sum()
-        )
-
-
-        jumlah_negatif = int(
-            (
-                df["Hasil Prediksi"]
-                == "Negatif"
-            ).sum()
-        )
-
-
-        st.subheader(
-            "Ringkasan Hasil"
-        )
-
-
-        col1, col2, col3 = st.columns(3)
-
-
-        with col1:
-
-            st.metric(
-                "Total Ulasan",
-                len(df)
+            st.success(
+                f"User '{user_hapus}' berhasil dihapus."
             )
 
 
-        with col2:
+            st.rerun()
 
-            st.metric(
-                "Positif",
-                jumlah_positif
-            )
+    else:
 
-
-        with col3:
-
-            st.metric(
-                "Negatif",
-                jumlah_negatif
-            )
-
-
-        # --------------------------------------------------------------
-        # DOWNLOAD HASIL
-        # --------------------------------------------------------------
-
-        csv_hasil = df.to_csv(
-            index=False
-        ).encode(
-            "utf-8-sig"
-        )
-
-
-        st.download_button(
-            "Download Hasil Analisis",
-            data=csv_hasil,
-            file_name="hasil_prediksi_sentimen.csv",
-            mime="text/csv",
-            use_container_width=True
+        st.info(
+            "Tidak ada user lain yang dapat dihapus."
         )
 
 
 # ======================================================================================
-# 12. FOOTER
+# 15. TENTANG APLIKASI
+# ======================================================================================
+
+def tentang_aplikasi():
+
+    st.title(
+        "Tentang Aplikasi"
+    )
+
+
+    st.write(
+        "Informasi mengenai aplikasi Sentimen Review Analyzer."
+    )
+
+
+    st.divider()
+
+
+    with st.container(
+        border=True
+    ):
+
+        st.subheader(
+            "Sentimen Review Analyzer"
+        )
+
+
+        st.write(
+            "Aplikasi ini digunakan untuk menganalisis "
+            "sentimen ulasan pengguna GoPay menjadi "
+            "sentimen positif atau negatif dan confidence."
+        )
+
+
+        st.write("")
+
+
+        st.write(
+            "Sistem menggunakan preprocessing teks, "
+            "TF-IDF, SMOTE, dan Logistic Regression "
+            "untuk melakukan klasifikasi sentimen."
+        )
+
+
+        st.write("")
+
+
+        st.write(
+            "Pengguna dapat memasukkan satu ulasan "
+            "untuk memperoleh hasil prediksi sentimen "
+            "beserta nilai confidence."
+        )
+
+
+# ======================================================================================
+# 16. ROUTING
+# ======================================================================================
+
+if st.session_state.halaman == "Dashboard":
+
+    dashboard()
+
+
+elif st.session_state.halaman == "Analisis Ulasan":
+
+    analisis_satu_ulasan()
+
+
+elif st.session_state.halaman == "Manage User":
+
+    if st.session_state.role == "Administrator":
+
+        manage_user()
+
+    else:
+
+        st.error(
+            "Anda tidak memiliki akses ke halaman Manage User."
+        )
+
+
+elif st.session_state.halaman == "Tentang Aplikasi":
+
+    tentang_aplikasi()
+
+
+# ======================================================================================
+# 17. FOOTER
 # ======================================================================================
 
 st.divider()
+
 
 st.caption(
     "Sentimen Review Analyzer | "
